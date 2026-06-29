@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ODM — Obtener Token</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #7B2D8B 0%, #E91E8C 100%);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 36px 32px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    text-align: center;
+  }
+  .logo { font-size: 48px; margin-bottom: 12px; }
+  h1 { font-size: 22px; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: #666680; margin-bottom: 28px; line-height: 1.5; }
+
+  .step {
+    background: #f7f7fb;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    text-align: left;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #E91E8C, #7B2D8B);
+    color: white; font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-text { font-size: 13px; color: #444; line-height: 1.5; }
+  .step-text strong { color: #1a1a2e; }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn-primary {
+    background: linear-gradient(135deg, #E91E8C, #7B2D8B);
+    color: white;
+  }
+  .btn-secondary {
+    background: #f0e6f3;
+    color: #7B2D8B;
+    margin-top: 10px;
+  }
+
+  /* RESULT */
+  #result { display: none; }
+  #result.success .result-box {
+    background: #d1fae5; border: 2px solid #10b981;
+    border-radius: 12px; padding: 20px; margin: 16px 0;
+  }
+  #result.error .result-box {
+    background: #fdecea; border: 2px solid #e53935;
+    border-radius: 12px; padding: 20px; margin: 16px 0;
+  }
+  .result-label { font-size: 12px; font-weight: 700; color: #065f46; margin-bottom: 8px; }
+  .token-display {
+    background: white; border-radius: 8px; padding: 12px;
+    font-family: monospace; font-size: 13px;
+    word-break: break-all; color: #1a1a2e;
+    border: 1px solid #a7f3d0;
+    text-align: left;
+  }
+  .copy-btn {
+    margin-top: 10px; width: 100%; padding: 10px;
+    background: #10b981; color: white; border: none;
+    border-radius: 8px; font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .copy-btn:hover { background: #059669; }
+  .error-text { color: #e53935; font-size: 14px; }
+  .next-step {
+    margin-top: 16px; padding: 14px; background: #fce4f3;
+    border-radius: 10px; font-size: 13px; color: #7B2D8B;
+    line-height: 1.6; text-align: left;
+  }
+
+  /* PROCESSING */
+  #processing { display: none; }
+  .spinner {
+    width: 40px; height: 40px; border: 4px solid #f0e6f3;
+    border-top-color: #E91E8C; border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 20px auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* REDIRECT SETUP */
+  #redirect-setup { display: none; }
+  .input-group { margin-bottom: 14px; text-align: left; }
+  .input-group label { font-size: 13px; font-weight: 700; color: #444; display: block; margin-bottom: 6px; }
+  .input-group input {
+    width: 100%; padding: 11px 14px; border: 2px solid #eeeef6;
+    border-radius: 10px; font-family: 'Nunito', sans-serif;
+    font-size: 13px; outline: none;
+  }
+  .input-group input:focus { border-color: #E91E8C; }
+  .hint { font-size: 11px; color: #999; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🔑</div>
+
+  <!-- STEP 1: Intro -->
+  <div id="intro">
+    <h1>Obtener Token de Tienda Nube</h1>
+    <p class="subtitle">Esta página te ayuda a obtener tu access token para conectar el dashboard de inventario.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">Presiona el botón de abajo — te llevará a Tienda Nube para autorizar el acceso.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">Acepta los permisos en Tienda Nube. <strong>Te redirigirá de regreso aquí automáticamente.</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">Tu token aparecerá en pantalla listo para copiar.</div>
+    </div>
+
+    <button class="btn btn-primary" onclick="startAuth()">Autorizar en Tienda Nube →</button>
+    <button class="btn btn-secondary" onclick="showManual()">Ya tengo el código (manual)</button>
+  </div>
+
+  <!-- MANUAL CODE INPUT -->
+  <div id="redirect-setup">
+    <h1>Ingresar código manual</h1>
+    <p class="subtitle">Si ya tienes el código de autorización, ingrésalo aquí junto con tu Client Secret.</p>
+    <div class="input-group">
+      <label>Código de autorización (code=...)</label>
+      <input type="text" id="manual-code" placeholder="ej. abc123xyz...">
+      <div class="hint">Viene en la URL después de autorizar: ?code=XXXXX</div>
+    </div>
+    <div class="input-group">
+      <label>Client Secret</label>
+      <input type="password" id="manual-secret" placeholder="Tu client secret...">
+    </div>
+    <button class="btn btn-primary" onclick="exchangeManual()">Obtener token</button>
+    <button class="btn btn-secondary" onclick="showIntro()">← Volver</button>
+  </div>
+
+  <!-- PROCESSING -->
+  <div id="processing">
+    <h1>Obteniendo tu token...</h1>
+    <div class="spinner"></div>
+    <p style="color:#666680;font-size:14px">Intercambiando código con Tienda Nube</p>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result">
+    <div class="result-box">
+      <div class="result-label" id="result-label"></div>
+      <div id="result-content"></div>
+    </div>
+    <div id="next-instructions"></div>
+  </div>
+
+</div>
+
+<script>
+const CLIENT_ID = '32688';
+const CLIENT_SECRET = '5ff7c84279d33c5ff2817a6a072e8f461081f8b52eac1e1d';
+// Redirect URI debe coincidir con la configurada en tu app de Tienda Nube
+const REDIRECT_URI = window.location.href.split('?')[0];
+
+function showIntro() {
+  document.getElementById('intro').style.display = 'block';
+  document.getElementById('redirect-setup').style.display = 'none';
+  document.getElementById('processing').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+}
+
+function showManual() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('redirect-setup').style.display = 'block';
+}
+
+function startAuth() {
+  const authUrl = `https://www.tiendanube.com/apps/${CLIENT_ID}/authorize`;
+  window.location.href = authUrl;
+}
+
+async function exchangeCode(code, secret) {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('redirect-setup').style.display = 'none';
+  document.getElementById('processing').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+
+  try {
+    const res = await fetch('https://www.tiendanube.com/apps/authorize/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: CLIENT_ID,
+        client_secret: secret || CLIENT_SECRET,
+        grant_type: 'authorization_code',
+        code: code
+      })
+    });
+
+    const data = await res.json();
+
+    document.getElementById('processing').style.display = 'none';
+    document.getElementById('result').style.display = 'block';
+
+    if (data.access_token) {
+      document.getElementById('result').className = 'success';
+      document.getElementById('result-label').textContent = '✅ ¡Token obtenido exitosamente!';
+      document.getElementById('result-label').style.color = '#065f46';
+      document.getElementById('result-content').innerHTML = `
+        <div class="token-display" id="token-val">${data.access_token}</div>
+        <button class="copy-btn" onclick="copyToken()">📋 Copiar token</button>
+      `;
+      document.getElementById('next-instructions').innerHTML = `
+        <div class="next-step">
+          <strong>¿Qué hago ahora?</strong><br>
+          Copia este token y pégalo en el dashboard de inventario cuando te pida conectar tu tienda. 
+          Guárdalo también en un lugar seguro — es válido hasta que regeneres el acceso.
+        </div>
+      `;
+    } else {
+      showError(JSON.stringify(data));
+    }
+  } catch(e) {
+    showError(e.message);
+  }
+}
+
+function showError(msg) {
+  document.getElementById('processing').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result').className = 'error';
+  document.getElementById('result-label').textContent = '❌ Error al obtener el token';
+  document.getElementById('result-label').style.color = '#e53935';
+  document.getElementById('result-content').innerHTML = `<div class="error-text">${msg}</div>`;
+  document.getElementById('next-instructions').innerHTML = `
+    <div class="next-step" style="background:#fdecea;color:#c62828">
+      <strong>Posible causa:</strong> El código de autorización ya expiró (duran ~10 minutos). 
+      Vuelve al inicio y autoriza de nuevo.
+    </div>
+    <button class="btn btn-secondary" onclick="showIntro()" style="margin-top:10px">← Intentar de nuevo</button>
+  `;
+}
+
+function copyToken() {
+  const token = document.getElementById('token-val').textContent;
+  navigator.clipboard.writeText(token).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ ¡Copiado!';
+    setTimeout(() => btn.textContent = '📋 Copiar token', 2000);
+  });
+}
+
+function exchangeManual() {
+  const code = document.getElementById('manual-code').value.trim();
+  const secret = document.getElementById('manual-secret').value.trim();
+  if (!code) { alert('Ingresa el código de autorización'); return; }
+  exchangeCode(code, secret);
+}
+
+// Auto-detect callback with code in URL
+window.addEventListener('load', () => {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+    exchangeCode(code);
+  }
+});
+</script>
+</body>
+</html>
