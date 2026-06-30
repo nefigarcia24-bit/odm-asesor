@@ -32,21 +32,31 @@ exports.handler = async function(event) {
 
     const data = await response.json();
 
-    // MODO DIAGNÓSTICO: muestra el JSON completo en pantalla, sin redirigir
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        http_status: response.status,
-        full_response: data
-      }, null, 2)
-    };
-
+    if (data.access_token) {
+      // Redirige a la página con el token en el hash (no en URL para seguridad)
+      return {
+        statusCode: 302,
+        headers: {
+          Location: `https://nefigarcia24-bit.github.io/odm-asesor/obtener-token.html#token=${data.access_token}`
+        },
+        body: ''
+      };
+    } else {
+      return {
+        statusCode: 302,
+        headers: {
+          Location: `https://nefigarcia24-bit.github.io/odm-asesor/obtener-token.html#error=${encodeURIComponent(JSON.stringify(data))}`
+        },
+        body: ''
+      };
+    }
   } catch (err) {
     return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: err.message })
+      statusCode: 302,
+      headers: {
+        Location: `https://nefigarcia24-bit.github.io/odm-asesor/obtener-token.html#error=${encodeURIComponent(err.message)}`
+      },
+      body: ''
     };
   }
 };
