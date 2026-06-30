@@ -9,7 +9,7 @@ exports.handler = async function(event) {
     return { statusCode: 200, headers, body: '' };
   }
 
-  const STORE_ID = '3825101';
+  const STORE_ID = '3685619';
   const token = event.headers['x-token'];
 
   if (!token) {
